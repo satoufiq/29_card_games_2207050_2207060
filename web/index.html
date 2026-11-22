@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Intelligent 29 Cards Game</title>
+  <meta name="description" content="Intelligent 29 Cards Game — play 29 against Aggressive, Strategic and Defensive AI players (ISMCTS, Fuzzy Logic, Minimax).">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a1210'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='32' font-weight='700' text-anchor='middle' fill='%23e3bd63'%3E29%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="room" aria-hidden="true"></div>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div id="flight-layer" aria-hidden="true"></div>
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+  <!-- ============================== MAIN MENU ============================== -->
+  <section id="screen-menu" class="screen active" aria-label="Main menu">
+    <div class="menu-glow"></div>
+    <div class="menu-inner">
+      <div class="hero-fan" aria-hidden="true">
+        <div class="hero-card hc-1"></div>
+        <div class="hero-card hc-2"></div>
+        <div class="hero-card hc-3"></div>
+        <div class="hero-card hc-4"></div>
+      </div>
+      <div class="title-block">
+        <div class="title-kicker">Intelligent</div>
+        <h1 class="title-29"><span>29</span></h1>
+        <div class="title-sub">Cards Game</div>
+        <div class="title-tech">ISMCTS · Fuzzy Logic · Minimax</div>
+      </div>
+      <nav class="menu-buttons">
+        <button class="btn-lux primary" data-menu="start"><span data-icon="play"></span>Start New Game</button>
+        <div class="menu-row">
+          <button class="btn-lux" data-menu="human"><span data-icon="user"></span>Human vs AI</button>
+          <button class="btn-lux" data-menu="ai"><span data-icon="cpu"></span>AI vs AI</button>
+        </div>
+        <div class="menu-row">
+          <button class="btn-lux ghost" data-menu="howto"><span data-icon="book"></span>How to Play</button>
+          <button class="btn-lux ghost" data-menu="settings"><span data-icon="settings"></span>Settings</button>
+        </div>
+        <button class="btn-lux ghost hidden" data-menu="resume" id="btn-resume"><span data-icon="rotate"></span>Resume Table</button>
+      </nav>
+      <div class="menu-personas">
+        <div class="persona aggressive"><span data-icon="flame"></span><b>Aggressive</b><small>High risk, high reward</small></div>
+        <div class="persona strategic"><span data-icon="brain"></span><b>Strategic</b><small>Calculated and adaptive</small></div>
+        <div class="persona defensive"><span data-icon="shield"></span><b>Defensive</b><small>Conservative and risk-averse</small></div>
+      </div>
+    </div>
+    <button class="round-btn sound-fab" id="menu-sound" title="Sound on/off" aria-label="Sound on/off"><span data-icon="volume"></span></button>
+  </section>
+
+  <!-- ============================== GAME TABLE ============================== -->
+  <section id="screen-game" class="screen" aria-label="Card table">
+    <header class="hud">
+      <div class="hud-left">
+        <button class="round-btn gold" id="btn-menu" title="Main menu" aria-label="Main menu"><span data-icon="menu"></span></button>
+        <div class="plaque contract-panel" id="hud-contract">
+          <div class="cp-trump" id="hud-trump"><span class="trump-emblem" id="hud-trump-emblem">?</span><small id="hud-trump-sub">Hidden</small></div>
+          <div class="cp-cell"><span class="cp-label">Contract</span><b id="hud-contract-value">—</b><small id="hud-contract-sub">Auction open</small></div>
+          <div class="cp-cell"><span class="cp-label">Trick</span><b id="hud-trick">0/8</b><small id="hud-phase">Auction</small></div>
+        </div>
+      </div>
+      <div class="hud-center"><span class="round-pill" id="hud-round">Round 1</span></div>
+      <div class="hud-right">
+        <div class="plaque score-panel" id="scoreboard">
+          <div class="sp-head"><span class="team-a" id="lbl-a">Us</span><span class="sp-cap">Match</span><span class="team-b" id="lbl-b">Them</span></div>
+          <div class="sp-main"><b class="team-mp team-a" id="mp-a">0</b><span class="sp-swords" data-icon="swords"></span><b class="team-mp team-b" id="mp-b">0</b></div>
+          <div class="sp-bars">
+            <div class="sp-bar" id="ribbon-a"><b id="pts-a">0</b><div class="rb-bar"><i id="bar-a"></i><em id="tgt-a"></em></div></div>
+            <div class="sp-bar right" id="ribbon-b"><div class="rb-bar"><i id="bar-b"></i><em id="tgt-b"></em></div><b id="pts-b">0</b></div>
+          </div>
+          <div class="sp-foot"><span>Points this deal</span><span id="hud-mult">First to ±6</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="corner-tools">
+      <button class="round-btn" id="btn-insight" title="AI reasoning" aria-label="AI reasoning panel"><span data-icon="sparkles"></span></button>
+      <button class="round-btn" id="btn-log" title="Game history" aria-label="Game history"><span data-icon="scroll"></span></button>
+      <button class="round-btn" id="btn-sound" title="Sound on/off" aria-label="Sound on/off"><span data-icon="volume"></span></button>
+      <button class="round-btn" id="btn-settings" title="Settings" aria-label="Settings"><span data-icon="settings"></span></button>
+    </div>
+
+    <main class="table-area" id="table-area">
+      <div class="table-wrap" id="table-wrap">
+        <div class="table-rim">
+          <div class="table-felt" id="felt">
+            <div class="medallion" aria-hidden="true"></div>
+
+            <div class="trump-plaque hidden" id="trump-plaque">
+              <div class="tp-card" id="tp-card"></div>
+              <div class="tp-text"><b id="tp-title">Secret trump</b><small id="tp-sub"></small></div>
+            </div>
+
+            <div class="deck-stack" id="deck-stack" aria-hidden="true"></div>
+            <div class="trick-zone" id="trick-zone">
+              <div class="trick-slot" data-pos="bottom"></div>
+              <div class="trick-slot" data-pos="right"></div>
+              <div class="trick-slot" data-pos="top"></div>
+              <div class="trick-slot" data-pos="left"></div>
+            </div>
+            <div class="center-call" id="center-call" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="seat" data-pos="top" id="seat-top"></div>
+      <div class="seat" data-pos="left" id="seat-left"></div>
+      <div class="seat" data-pos="right" id="seat-right"></div>
+      <div class="seat" data-pos="bottom" id="seat-bottom"></div>
+
+      <div class="action-dock" id="action-dock" aria-live="polite"></div>
+      <div class="hand" id="hand" aria-label="Your hand"></div>
+
+      <div class="spectator-bar hidden" id="spectator-bar">
+        <button class="icon-btn" id="sp-play" title="Pause / play" aria-label="Pause or play"><span data-icon="pause"></span></button>
+        <button class="icon-btn" id="sp-step" title="Step one action" aria-label="Step one action"><span data-icon="step"></span></button>
+        <div class="seg" id="sp-speed">
+          <button data-speed="relaxed">Slow</button><button data-speed="normal">Normal</button><button data-speed="fast">Fast</button>
+        </div>
+      </div>
+    </main>
+
+
+    <aside class="side-panel insight" id="insight-panel" aria-label="AI reasoning">
+      <div class="panel-head">
+        <h3><span data-icon="sparkles"></span>AI Reasoning</h3>
+        <label class="switch-inline small"><input type="checkbox" id="adv-toggle"><span></span>Advanced</label>
+        <button class="icon-btn small" data-close="insight-panel" aria-label="Close"><span data-icon="x"></span></button>
+      </div>
+      <div class="panel-note" id="insight-note"></div>
+      <div class="insight-feed" id="insight-feed"></div>
+    </aside>
+
+    <aside class="side-panel log" id="log-panel" aria-label="Game history">
+      <div class="panel-head">
+        <h3><span data-icon="scroll"></span>History</h3>
+        <button class="icon-btn small" data-close="log-panel" aria-label="Close"><span data-icon="x"></span></button>
+      </div>
+      <div class="match-history" id="match-history"></div>
+      <div class="log-feed" id="log-feed"></div>
+    </aside>
+  </section>
+
+  <!-- ============================== OVERLAYS ============================== -->
+  <div class="overlay" id="ov-setup" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+    <div class="modal setup-modal">
+      <div class="modal-head">
+        <h2 id="setup-title">New Game</h2>
+        <button class="icon-btn small" data-dismiss aria-label="Close"><span data-icon="x"></span></button>
+      </div>
+      <div class="mode-switch" id="mode-switch">
+        <button data-mode="human" class="active"><span data-icon="user"></span><b>Human vs AI</b><small>You play South with an AI partner</small></button>
+        <button data-mode="ai"><span data-icon="cpu"></span><b>AI vs AI</b><small>Watch four AIs reason it out</small></button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="tab-players">Players</button>
+        <button class="tab" data-tab="tab-rules">House Rules</button>
+        <button class="tab" data-tab="tab-single">Single Hand</button>
+      </div>
+      <div class="tab-body">
+        <div class="tab-pane active" id="tab-players">
+          <div class="seat-grid" id="seat-grid"></div>
+          <div class="field-row">
+            <label>AI thinking depth</label>
+            <div class="seg" id="cfg-speed">
+              <button data-v="fast">Quick</button><button data-v="normal" class="active">Normal</button><button data-v="deep">Deep</button>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-rules">
+          <div class="rules-grid">
+            <label class="toggle-field"><input type="checkbox" id="r-last-trick"><span class="tg"></span><div><b>Last-trick point</b><small>+1 card point for the 8th trick (29-point game). Off = 28 card points.</small></div></label>
+            <label class="toggle-field"><input type="checkbox" id="r-seventh"><span class="tg"></span><div><b>7th-card trump</b><small>The bidder may let their concealed 7th card decide trump.</small></div></label>
+            <label class="toggle-field"><input type="checkbox" id="r-double"><span class="tg"></span><div><b>Double &amp; Redouble</b><small>Defenders may double (2×); declarers may redouble (4×).</small></div></label>
+            <label class="toggle-field"><input type="checkbox" id="r-marriage"><span class="tg"></span><div><b>Royal marriage</b><small>K + Q of trump moves the contract target.</small></div></label>
+            <div class="select-field"><b>Marriage timing</b>
+              <select id="r-marriage-mode"><option value="auto">Automatic when trump is revealed</option><option value="after_trick">Announced after the holder's team wins a trick</option></select></div>
+            <div class="select-field"><b>Marriage value</b>
+              <select id="r-marriage-value"><option value="2">2 points</option><option value="3">3 points</option><option value="4">4 points</option></select></div>
+            <div class="select-field"><b>If all four players pass</b>
+              <select id="r-all-pass"><option value="dealer_forced">Dealer must play at 16</option><option value="redeal">Throw in and redeal</option></select></div>
+            <div class="select-field"><b>Match target</b>
+              <select id="r-target"><option value="3">±3 match points</option><option value="4">±4</option><option value="6">±6 (classic)</option><option value="8">±8</option></select></div>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-single">
+          <p class="tab-intro">Single Hand rules vary between tables. Choose your table's convention — the AI's Single Hand decisions follow these settings.</p>
+          <div class="rules-grid">
+            <label class="toggle-field"><input type="checkbox" id="s-enabled"><span class="tg"></span><div><b>Allow Single Hand</b><small>A player may try to win the hand alone.</small></div></label>
+            <div class="select-field"><b>When can it be called?</b>
+              <select id="s-timing"><option value="after_deal">After all 8 cards, before the first lead</option><option value="auction">As a special call during the auction</option></select></div>
+            <label class="toggle-field"><input type="checkbox" id="s-sits-out"><span class="tg"></span><div><b>Partner sits out</b><small>The declarer plays alone; tricks have 3 cards.</small></div></label>
+            <label class="toggle-field"><input type="checkbox" id="s-partner-counts"><span class="tg"></span><div><b>Partner's tricks count</b><small>Only when the partner plays.</small></div></label>
+            <label class="toggle-field"><input type="checkbox" id="s-all-tricks"><span class="tg"></span><div><b>Must win all 8 tricks</b><small>Losing any trick fails the Single Hand.</small></div></label>
+            <label class="toggle-field"><input type="checkbox" id="s-target"><span class="tg"></span><div><b>Normal contract target applies</b><small>Card points must also reach the bid.</small></div></label>
+            <div class="select-field"><b>Trump in a Single Hand</b>
+              <select id="s-trump"><option value="none">No trump</option><option value="declarer_chooses">Declarer names trump openly</option></select></div>
+            <div class="select-field"><b>Scoring</b>
+              <div class="inline-pair">
+                <label>Win <select id="s-win"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>6</option></select></label>
+                <label>Loss <select id="s-loss"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>6</option></select></label>
+              </div></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-lux ghost" data-dismiss>Cancel</button>
+        <button class="btn-lux primary" id="btn-start-match"><span data-icon="play"></span>Deal the Cards</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal small-modal">
+      <div class="modal-head"><h2 id="settings-title">Settings</h2><button class="icon-btn small" data-dismiss aria-label="Close"><span data-icon="x"></span></button></div>
+      <div class="rules-grid single">
+        <label class="toggle-field"><input type="checkbox" id="set-sound"><span class="tg"></span><div><b>Sound effects</b><small>Card flicks, chips and fanfares.</small></div></label>
+        <div class="select-field"><b>Volume</b><input type="range" id="set-volume" min="0" max="100" value="60"></div>
+        <label class="toggle-field"><input type="checkbox" id="set-reduced"><span class="tg"></span><div><b>Reduced motion</b><small>Shorter, simpler animations and no particles.</small></div></label>
+        <div class="select-field"><b>Animation pace</b>
+          <div class="seg" id="set-pace"><button data-v="relaxed">Relaxed</button><button data-v="normal">Normal</button><button data-v="fast">Fast</button></div></div>
+        <label class="toggle-field"><input type="checkbox" id="set-insight"><span class="tg"></span><div><b>Open AI reasoning panel</b><small>Show AI explanations when a game starts.</small></div></label>
+      </div>
+      <div class="modal-foot"><button class="btn-lux primary" data-dismiss>Done</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-howto" role="dialog" aria-modal="true" aria-labelledby="howto-title">
+    <div class="modal howto-modal">
+      <div class="modal-head"><h2 id="howto-title">How to Play 29</h2><button class="icon-btn small" data-dismiss aria-label="Close"><span data-icon="x"></span></button></div>
+      <div class="howto-body">
+        <section>
+          <h4>The deck &amp; the teams</h4>
+          <p>32 cards (7 to Ace in four suits). Four players in two partnerships sit opposite each other: <b>Team A</b> (you &amp; North) and <b>Team B</b> (West &amp; East). Dealing, bidding and play always go <b>clockwise</b>.</p>
+          <div class="rank-strip" id="rank-strip"></div>
+          <p class="muted">Rank in every suit: J &gt; 9 &gt; A &gt; 10 &gt; K &gt; Q &gt; 8 &gt; 7. Points: J = 3, 9 = 2, A = 1, 10 = 1 — 28 card points in the deck (29 with the optional last-trick point).</p>
+        </section>
+        <section>
+          <h4>Bidding</h4>
+          <p>Everyone gets 4 cards. Starting with the player after the dealer and going clockwise, bidding is a series of duels. The first player opens (16 or more); the next player must bid <b>higher</b> or pass. The player holding the bid may <b>hold</b> at the same number — they never need to go higher. When one of the two passes, the survivor duels the next player. <b>Passing is final</b>; the last player standing wins the contract.</p>
+        </section>
+        <section>
+          <h4>Trump</h4>
+          <p>The winner secretly picks a trump suit — or lets their concealed <b>7th card</b> decide. While everyone still holds only 4 cards, the defenders may <b>double</b> (×2) and the declaring side may then <b>redouble</b> (×4). After that the last four cards are dealt. Trump stays hidden until a player who cannot follow suit <b>calls for the trump</b>.</p>
+        </section>
+        <section>
+          <h4>Play</h4>
+          <p>Follow suit if you can. If you can't, you may discard or call for the trump and cut. The highest trump wins, otherwise the highest card of the suit led. The bidding team needs card points ≥ the contract.</p>
+        </section>
+        <section>
+          <h4>Marriage &amp; Single Hand</h4>
+          <p>Holding the K + Q of trump is a <b>royal marriage</b>: it lowers your team's target by 4 if you declared, or raises the declarers' target by 4 if you defend. A <b>Single Hand</b> is a bold attempt to win alone — its exact conditions are set in the house rules.</p>
+        </section>
+        <section>
+          <h4>Scoring</h4>
+          <p>Make the contract: +1 match point (×2 doubled, ×4 redoubled). Fail: −1. First team to reach the match target wins; falling to minus the target loses.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-trump" role="dialog" aria-modal="true" aria-labelledby="trump-title">
+    <div class="modal trump-modal">
+      <div class="trump-head">
+        <div class="kicker" id="trump-kicker">You won the auction</div>
+        <h2 id="trump-title">Choose your secret trump</h2>
+        <p id="trump-help">Only you will know it until someone calls for the trump.</p>
+      </div>
+      <div class="suit-choices" id="suit-choices"></div>
+      <div class="trump-mini-hand" id="trump-mini-hand"></div>
+    </div>
+  </div>
+
+  <div class="overlay cinematic" id="ov-reveal" aria-live="assertive">
+    <div class="reveal-stage">
+      <div class="reveal-rays"></div>
+      <div class="reveal-card" id="reveal-card"></div>
+      <div class="reveal-text">
+        <div class="kicker" id="reveal-kicker">Trump revealed</div>
+        <div class="reveal-suit" id="reveal-suit"></div>
+        <div class="reveal-sub" id="reveal-sub"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-marriage" role="dialog" aria-modal="true" aria-labelledby="marriage-title">
+    <div class="modal marriage-modal">
+      <div class="crown" data-icon="crown"></div>
+      <div class="kicker">Royal Marriage</div>
+      <h2 id="marriage-title">King &amp; Queen of Trump</h2>
+      <div class="marriage-cards" id="marriage-cards"></div>
+      <p id="marriage-text"></p>
+      <div class="target-shift"><span id="m-old">20</span><span class="arrow">→</span><span id="m-new">16</span></div>
+      <button class="btn-lux primary" id="btn-marriage-ok">Continue</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-round" role="dialog" aria-modal="true" aria-labelledby="round-title">
+    <div class="modal round-modal">
+      <div class="result-banner" id="round-banner">
+        <div class="kicker" id="round-kicker">Round 1</div>
+        <h2 id="round-title">Contract Made</h2>
+        <p id="round-detail"></p>
+      </div>
+      <div class="round-teams">
+        <div class="rt team-a"><span>Team A</span><b id="rs-a">0</b><small id="rs-a-delta"></small></div>
+        <div class="rt-vs">card points</div>
+        <div class="rt team-b"><span>Team B</span><b id="rs-b">0</b><small id="rs-b-delta"></small></div>
+      </div>
+      <div class="round-tricks" id="round-tricks"></div>
+      <div class="round-match"><span>Match</span><b id="rm-a">0</b><i>:</i><b id="rm-b">0</b></div>
+      <div class="modal-foot center">
+        <button class="btn-lux primary" id="btn-next-round"><span data-icon="play"></span>Next Round</button>
+      </div>
+      <div class="auto-note" id="round-auto"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-abandon" role="dialog" aria-modal="true" aria-labelledby="abandon-title">
+    <div class="modal small-modal abandon-modal">
+      <div class="kicker">Deal abandoned</div>
+      <h2 id="abandon-title">The cards are thrown in</h2>
+      <p id="abandon-text"></p>
+      <div class="modal-foot center"><button class="btn-lux primary" id="btn-abandon-ok"><span data-icon="rotate"></span>Deal Again</button></div>
+      <div class="auto-note" id="abandon-auto"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-gameover" role="dialog" aria-modal="true" aria-labelledby="go-title">
+    <div class="modal gameover-modal">
+      <div class="go-emblem" id="go-emblem" data-icon="trophy"></div>
+      <div class="kicker" id="go-kicker">Match complete</div>
+      <h2 id="go-title">Victory</h2>
+      <p id="go-sub"></p>
+      <div class="go-scores">
+        <div class="team-a"><span>Team A</span><b id="go-a">0</b></div>
+        <div class="team-b"><span>Team B</span><b id="go-b">0</b></div>
+      </div>
+      <div class="go-history" id="go-history"></div>
+      <div class="modal-foot center">
+        <button class="btn-lux ghost" id="btn-go-menu"><span data-icon="menu"></span>Main Menu</button>
+        <button class="btn-lux primary" id="btn-rematch"><span data-icon="rotate"></span>Rematch</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toasts" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

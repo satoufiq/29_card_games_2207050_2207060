@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-200 -200 400 400" width="400" height="400">
+  <defs>
+    <g id="petal"><path d="M0 -150 C 18 -128 18 -104 0 -86 C -18 -104 -18 -128 0 -150 Z"/></g>
+    <g id="leaf"><path d="M0 -112 C 10 -100 10 -86 0 -76 C -10 -86 -10 -100 0 -112 Z"/></g>
+    <g id="dot"><circle cx="0" cy="-168" r="3.2"/></g>
+    <g id="star-ray"><path d="M0 -70 L 9 -36 L 0 -28 L -9 -36 Z"/></g>
+  </defs>
+  <g fill="none" stroke="#c9a24a" stroke-width="2">
+    <circle r="182"/>
+    <circle r="174" stroke-width="1" stroke-dasharray="2 6"/>
+    <circle r="156"/>
+    <circle r="120" stroke-width="1.4"/>
+    <circle r="78"/>
+    <circle r="24"/>
+  </g>
+  <g fill="#c9a24a" opacity=".85">
+    <use href="#petal"/><use href="#petal" transform="rotate(22.5)"/><use href="#petal" transform="rotate(45)"/><use href="#petal" transform="rotate(67.5)"/>
+    <use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(112.5)"/><use href="#petal" transform="rotate(135)"/><use href="#petal" transform="rotate(157.5)"/>
+    <use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(202.5)"/><use href="#petal" transform="rotate(225)"/><use href="#petal" transform="rotate(247.5)"/>
+    <use href="#petal" transform="rotate(270)"/><use href="#petal" transform="rotate(292.5)"/><use href="#petal" transform="rotate(315)"/><use href="#petal" transform="rotate(337.5)"/>
+  </g>
+  <g fill="#8e2a1c">
+    <use href="#leaf" transform="rotate(11.25)"/><use href="#leaf" transform="rotate(56.25)"/><use href="#leaf" transform="rotate(101.25)"/><use href="#leaf" transform="rotate(146.25)"/>
+    <use href="#leaf" transform="rotate(191.25)"/><use href="#leaf" transform="rotate(236.25)"/><use href="#leaf" transform="rotate(281.25)"/><use href="#leaf" transform="rotate(326.25)"/>
+  </g>
+  <g fill="#c9a24a">
+    <use href="#dot"/><use href="#dot" transform="rotate(15)"/><use href="#dot" transform="rotate(30)"/><use href="#dot" transform="rotate(45)"/><use href="#dot" transform="rotate(60)"/><use href="#dot" transform="rotate(75)"/>
+    <use href="#dot" transform="rotate(90)"/><use href="#dot" transform="rotate(105)"/><use href="#dot" transform="rotate(120)"/><use href="#dot" transform="rotate(135)"/><use href="#dot" transform="rotate(150)"/><use href="#dot" transform="rotate(165)"/>
+    <use href="#dot" transform="rotate(180)"/><use href="#dot" transform="rotate(195)"/><use href="#dot" transform="rotate(210)"/><use href="#dot" transform="rotate(225)"/><use href="#dot" transform="rotate(240)"/><use href="#dot" transform="rotate(255)"/>
+    <use href="#dot" transform="rotate(270)"/><use href="#dot" transform="rotate(285)"/><use href="#dot" transform="rotate(300)"/><use href="#dot" transform="rotate(315)"/><use href="#dot" transform="rotate(330)"/><use href="#dot" transform="rotate(345)"/>
+  </g>
+  <g fill="#c9a24a" opacity=".9">
+    <use href="#star-ray"/><use href="#star-ray" transform="rotate(45)"/><use href="#star-ray" transform="rotate(90)"/><use href="#star-ray" transform="rotate(135)"/>
+    <use href="#star-ray" transform="rotate(180)"/><use href="#star-ray" transform="rotate(225)"/><use href="#star-ray" transform="rotate(270)"/><use href="#star-ray" transform="rotate(315)"/>
+  </g>
+  <path d="M0 -52 L 37 -37 L 52 0 L 37 37 L 0 52 L -37 37 L -52 0 L -37 -37 Z" fill="none" stroke="#c9a24a" stroke-width="2"/>
+  <rect x="-36" y="-36" width="72" height="72" fill="none" stroke="#8e2a1c" stroke-width="2" transform="rotate(45)"/>
+  <circle r="10" fill="#8e2a1c" stroke="#c9a24a" stroke-width="2"/>
+</svg>
